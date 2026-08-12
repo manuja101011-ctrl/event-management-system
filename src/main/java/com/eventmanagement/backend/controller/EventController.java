@@ -2,6 +2,7 @@ package com.eventmanagement.backend.controller;
 
 import com.eventmanagement.backend.entity.Event;
 import com.eventmanagement.backend.service.EventService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
+    public ResponseEntity<Event> createEvent(@Valid @RequestBody Event event) {
         Event savedEvent = eventService.createEvent(event);
         return ResponseEntity.ok(savedEvent);
     }
@@ -39,9 +40,11 @@ public class EventController {
     @PutMapping("/{id}")
     public ResponseEntity<Event> updateEvent(
             @PathVariable Long id,
-            @RequestBody Event event) {
+            @Valid @RequestBody Event event) {
 
-        return ResponseEntity.ok(eventService.updateEvent(id, event));
+        return ResponseEntity.ok(
+                eventService.updateEvent(id, event)
+        );
     }
 
     @DeleteMapping("/{id}")

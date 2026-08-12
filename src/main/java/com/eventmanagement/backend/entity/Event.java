@@ -1,6 +1,10 @@
 package com.eventmanagement.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -13,20 +17,30 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Event name is required")
     private String eventName;
 
+    @NotBlank(message = "Description is required")
     private String description;
 
+    @NotBlank(message = "Category is required")
     private String category;
 
+    @NotNull(message = "Event date is required")
     private LocalDate eventDate;
 
+    @NotNull(message = "Event time is required")
     private LocalTime eventTime;
 
+    @NotBlank(message = "Venue is required")
     private String venue;
 
+    @NotNull(message = "Capacity is required")
+    @Min(value = 1, message = "Capacity must be at least 1")
     private Integer capacity;
 
+    @NotNull(message = "Ticket price is required")
+    @PositiveOrZero(message = "Ticket price cannot be negative")
     private Double ticketPrice;
 
     public Event() {

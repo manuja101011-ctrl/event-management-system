@@ -1,6 +1,7 @@
 package com.eventmanagement.backend.service;
 
 import com.eventmanagement.backend.entity.Event;
+import com.eventmanagement.backend.exception.ResourceNotFoundException;
 import com.eventmanagement.backend.repository.EventRepository;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +30,13 @@ public class EventService {
     }
 
     public Event updateEvent(Long id, Event eventDetails) {
+
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Event not found with id: " + id
+                        )
+                );
 
         event.setEventName(eventDetails.getEventName());
         event.setDescription(eventDetails.getDescription());
@@ -45,6 +51,13 @@ public class EventService {
     }
 
     public void deleteEvent(Long id) {
+
+        if (!eventRepository.existsById(id)) {
+            throw new ResourceNotFoundException(
+                    "Event not found with id: " + id
+            );
+        }
+
         eventRepository.deleteById(id);
     }
 }
