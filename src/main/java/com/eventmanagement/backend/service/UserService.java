@@ -1,6 +1,7 @@
 package com.eventmanagement.backend.service;
 
 import com.eventmanagement.backend.entity.User;
+import com.eventmanagement.backend.exception.ResourceNotFoundException;
 import com.eventmanagement.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +30,13 @@ public class UserService {
     }
 
     public User updateUser(Long id, User userDetails) {
+
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "User not found with id: " + id
+                        )
+                );
 
         user.setName(userDetails.getName());
         user.setEmail(userDetails.getEmail());
@@ -41,6 +47,13 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
+
+        if (!userRepository.existsById(id)) {
+            throw new ResourceNotFoundException(
+                    "User not found with id: " + id
+            );
+        }
+
         userRepository.deleteById(id);
     }
 }

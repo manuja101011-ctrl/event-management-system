@@ -3,6 +3,8 @@ package com.eventmanagement.backend.service;
 import com.eventmanagement.backend.entity.Event;
 import com.eventmanagement.backend.entity.Registration;
 import com.eventmanagement.backend.entity.User;
+import com.eventmanagement.backend.exception.DuplicateRegistrationException;
+import com.eventmanagement.backend.exception.ResourceNotFoundException;
 import com.eventmanagement.backend.repository.EventRepository;
 import com.eventmanagement.backend.repository.RegistrationRepository;
 import com.eventmanagement.backend.repository.UserRepository;
@@ -31,10 +33,24 @@ public class RegistrationService {
     public Registration createRegistration(Long userId, Long eventId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "User not found with id: " + userId
+                        )
+                );
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Event not found with id: " + eventId
+                        )
+                );
+
+        if (registrationRepository.existsByUserIdAndEventId(userId, eventId)) {
+            throw new DuplicateRegistrationException(
+                    "User is already registered for this event"
+            );
+        }
 
         Registration registration = new Registration();
 
@@ -51,17 +67,35 @@ public class RegistrationService {
     }
 
     public List<Registration> getRegistrationsByUser(Long userId) {
+
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException(
+                    "User not found with id: " + userId
+            );
+        }
+
         return registrationRepository.findByUserId(userId);
     }
 
     public List<Registration> getRegistrationsByEvent(Long eventId) {
+
+        if (!eventRepository.existsById(eventId)) {
+            throw new ResourceNotFoundException(
+                    "Event not found with id: " + eventId
+            );
+        }
+
         return registrationRepository.findByEventId(eventId);
     }
 
     public void cancelRegistration(Long id) {
 
         Registration registration = registrationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Registration not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Registration not found with id: " + id
+                        )
+                );
 
         registration.setStatus("CANCELLED");
 
