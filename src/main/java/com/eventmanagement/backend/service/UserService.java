@@ -17,18 +17,41 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    // REGISTER USER
     public User createUser(User user) {
         return userRepository.save(user);
     }
 
+    // LOGIN USER
+    public User loginUser(String email, String password) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Invalid email or password"
+                        )
+                );
+
+        if (!user.getPassword().equals(password)) {
+            throw new ResourceNotFoundException(
+                    "Invalid email or password"
+            );
+        }
+
+        return user;
+    }
+
+    // GET ALL USERS
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    // GET USER BY ID
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
+    // UPDATE USER
     public User updateUser(Long id, User userDetails) {
 
         User user = userRepository.findById(id)
@@ -46,6 +69,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // DELETE USER
     public void deleteUser(Long id) {
 
         if (!userRepository.existsById(id)) {
